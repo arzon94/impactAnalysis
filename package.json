@@ -1,5 +1,5 @@
 {
-  "name": "dagre",
+  "name": "dagre-impact",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "core-js": "^2.6.5",
+    "d3": "^5.9.2",
+    "dagre": "^0.8.4",
+    "dagre-d3": "^0.6.3",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3"
   },

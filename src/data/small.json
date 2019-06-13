@@ -1,0 +1,41 @@
+[
+  {
+    "id": "mini.json",
+    "reports": [
+      {
+        "nodeId": "FB84C02A280DD05D",
+        "Edge": []
+      },
+      {
+        "nodeId": "2D8E0D7A581D9EE8",
+        "Edge": [
+          "FB84C02A280DD05D"
+        ]
+      },
+      {
+        "nodeId": "2D8E0D7A581D9EE9",
+        "Edge": [
+          "FB84C02A280DD05D"
+        ]
+      },
+      {
+        "nodeId": "547D123B1BCSCF302",
+        "Edge": [
+          "2D8E0D7A581D9EE8",
+          "FB84C02A280DD05D"
+        ]
+      },
+      {
+        "nodeId": "47D123B1BC7CF302",
+        "Edge": [
+          "2D8E0D7A581D9EE8",
+          "FB84C02A280DD05D"
+        ]
+      },
+      {
+        "nodeId": "9IAAC02A28A47UP9",
+        "Edge": []
+      }
+    ]
+  }
+]
