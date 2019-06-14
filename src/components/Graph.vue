@@ -10,7 +10,6 @@
 /* eslint-disable no-console */
 import * as d3 from "d3";
 import * as smalldata from "../data/small.json";
-
 import * as dagred3 from "dagre-d3/dist/dagre-d3";
 // import graphlib from "dagre-d3";
 // let dagred3 = require("dagre-d3/dist/dagre-d3");
