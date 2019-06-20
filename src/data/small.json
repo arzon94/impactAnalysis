@@ -4,22 +4,26 @@
     "reports": [
       {
         "nodeId": "FB84C02A280DD05D",
-        "Edge": []
+        "detail": "This is QS1",
+        "Edge": ["2D8E0D7A581C9EA9"]
       },
       {
         "nodeId": "2D8E0D7A581D9EE8",
+        "detail": "This is QS2",
         "Edge": [
           "FB84C02A280DD05D"
         ]
       },
       {
-        "nodeId": "2D8E0D7A581D9EE9",
+        "nodeId": "2D8E0D7A581C9EA9",
+        "detail": "This is QS3",
         "Edge": [
           "FB84C02A280DD05D"
         ]
       },
       {
         "nodeId": "547D123B1BCSCF302",
+        "detail": "This is QS4",
         "Edge": [
           "2D8E0D7A581D9EE8",
           "FB84C02A280DD05D"
@@ -27,6 +31,7 @@
       },
       {
         "nodeId": "47D123B1BC7CF302",
+        "detail": "This is QS5",
         "Edge": [
           "2D8E0D7A581D9EE8",
           "FB84C02A280DD05D"
@@ -34,6 +39,7 @@
       },
       {
         "nodeId": "9IAAC02A28A47UP9",
+        "detail": "This is QS6",
         "Edge": []
       }
     ]

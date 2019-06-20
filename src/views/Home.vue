@@ -1,8 +1,5 @@
 <template>
-  <div class="home">
-<!--    <img alt="Vue logo" src="../assets/logo.png" />-->
-    <Graph msg="Welcome to Your Vue.js App"></Graph>
-  </div>
+  <Graph msg="Welcome to Your Vue.js App"></Graph>
 </template>
 
 <script>

@@ -1,34 +1,23 @@
-# dagre
+# Impact Analysis
 
-## Project setup
-```
-npm install
-```
+A tool visualizing in advance what impact a specific change on a file can have on other files which have direct or indirect dependency on the file.				
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## Built With
 
-### Compiles and minifies for production
-```
-npm run build
-```
+* [D3](https://github.com/d3) - for svg manipulation
+* [Vue](https://github.com/d3) - lifecycle hooks
+* [Dagre](https://github.com/dagrejs) - directed graph utilities
+* [Dagre-d3](https://github.com/dagrejs/dagre-d3) - D3 based renderer for dagre
 
-### Run your tests
-```
-npm run test
-```
+## Authors
 
-### Lints and fixes files
-```
-npm run lint
-```
+* **Andrew Perkins**
 
-### Run your unit tests
-```
-npm run test:unit
-```
+## License
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+## Acknowledgments
+
+* Thanks to Jonathan Mace and his work on [X-Trace](https://github.com/brownsys/X-Trace) for inspiration on this project
+

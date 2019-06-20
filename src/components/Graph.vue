@@ -1,33 +1,44 @@
 <template>
-  <div class="hello">
-    <svg >
+  <div class="svg-container" id="container">
+    <svg
+      class="svg-content"
+      viewBox="0 0 960 500"
+      preserveAspectRatio="xMidYMid meet"
+    >
       <g></g>
+      <!--      <g class="svg-content" width="100%" height="100%"-->
+      <!--         viewBox="0 0 960 500"-->
+      <!--         preserveAspectRatio="xMidYMid meet"></g>-->
     </svg>
   </div>
 </template>
 
 <script>
-/* eslint-disable no-console */
-import * as d3 from "d3";
-import * as smalldata from "../data/small.json";
-import * as dagred3 from "dagre-d3/dist/dagre-d3";
-// import graphlib from "dagre-d3";
-// let dagred3 = require("dagre-d3/dist/dagre-d3");
+  /* eslint-disable no-console */
+  import * as d3 from "d3";
+  import * as smalldata from "../data/small.json";
+  import * as dagred3 from "dagre-d3/dist/dagre-d3";
+  // let dagred3 = require("dagre-d3/dist/dagre-d3");
 
 export default {
   name: "graph",
   data() {
     return {
-      gdata: null
+      gdata: null,
+      width: 1000,
+      height: 500,
+      scale: 0.75
     };
   },
   created() {
     let myMap = new Map();
-    let initialdata = smalldata[0].reports
-    // console.log(smalldata[0].reports)
+    let initialdata = smalldata[0].reports;
     for (const i in initialdata) {
-      console.log(initialdata[i]["nodeId"])
-      myMap.set(initialdata[i]["nodeId"], initialdata[i]["Edge"]);
+      // console.log(initialdata[i]["nodeId"])
+      myMap.set(initialdata[i]["nodeId"], {
+        edges: initialdata[i]["Edge"],
+        detail: initialdata[i]["detail"]
+      });
     }
     this.gdata = myMap;
   },
@@ -36,60 +47,66 @@ export default {
   },
   methods: {
     render: function() {
-      const g = new dagred3.graphlib.Graph().setGraph({});
-
+      const graph = new dagred3.graphlib.Graph({}).setGraph({ });
       for (const [key, value] of this.gdata.entries()) {
-        console.log(key, value)
-        g.setNode(key, { label: key, Edge: value });
-        value.forEach(edge => {
-          g.setEdge(key, edge, {
-            arrowhead: "vee",
+        graph.setNode(key, { label: key, Edge: value.edges, detail: value.detail });
+        value.edges.forEach(edge => {
+          graph.setEdge(key, edge, {
+            arrowhead: "normal",
+            // arrowheadStyle: "fill: #fff",
+            curve: d3.curveBasis,
             label: " "
           });
         });
       }
-      /*for (const a of this.gdata) {
-          console.log(a)
-          let id = a["nodeId"];
-          // console.log("index for " + id + ": " + i)
-          g.setNode(id, { label: id, Edge: a["Edge"] });
-          a["Edge"].forEach(edge => {
-            g.setEdge(id, edge, {
-              arrowhead: "vee",
-              label: " "
-            });
-          });
-        }*/
 
-      const svg = d3
-          .select("svg")
-          .attr("width", "100%")
-          .attr("height", "100%"),
+      const svg = d3.select("div#container").select("svg"),
         inner = svg.select("g");
 
       // Set up zoom support
-      const zoom = d3.zoom().on("zoom", function() {
+      const zoom = d3.zoom().on("zoom", () => {
+        // console.log(d3.select(this).select("g"))
+        this.setScale(d3.event.transform.k);
         inner.attr("transform", d3.event.transform);
       });
       svg.call(zoom);
+      // this.zoom(svg, inner)
 
       // Create the renderer object
       const render = new dagred3.render();
       // Run the renderer. This is what draws the final graph.
-      render(inner, g);
+      render(inner, graph);
 
-      inner.selectAll("g.node")
+      let tooltip = d3.select("body")
+        .append("div")
+        .attr("id", "tooltip_template")
+        .text("Simple Tooltip...");
+
+      svg
+        .selectAll("g.node")
         .on("click", (d, i) => {
+          tooltip.style("visibility", "hidden");
           this.addChild(d, i);
           this.addParent(d);
-          this.render()
+          this.render();
+        })
+        .attr("data-detail", function(v) {
+          return graph.node(v).detail
         })
         .on("mouseenter", (d, i) => {
           this.highlightEdges(d, i);
+          tooltip.style("visibility", "visible");
         })
-        .on("mouseout", () =>
-          d3.selectAll("rect.label-container").style("fill", "white")
-        )
+        .on("mousemove", function() {
+          tooltip
+            .text(this.dataset.detail)
+            .style("top", (event.pageY-10)+"px")
+            .style("left",(event.pageX+10)+"px");
+        })
+        .on("mouseout", () => {
+          d3.selectAll("rect.label-container").style("fill", "white");
+          tooltip.style("visibility", "hidden");
+        })
         .selectAll("rect.label-container")
         .on("mouseenter", function() {
           d3.select(this).style("fill", "lightgray");
@@ -100,50 +117,47 @@ export default {
             .style("fill", "white");
         });
 
+      function transform(scale) {
+        return d3.zoomIdentity.translate((svg.attr("width") * scale) / 2, 20)
+          // .scale(scale);
+      }
       // Center the graph
-      const initialScale = 0.75;
       svg.call(
-        zoom.transform,
+        this.zoom.transform,
+        transform(this.scale),
         d3.zoomIdentity
           .translate(
-            (svg.attr("width") - g.graph().width * initialScale) / 2,
+            (svg.attr("width") - graph.graph().width * this.scale) / 2,
             20
           )
-          .scale(initialScale)
+          // .scale(this.scale)
       );
-      svg.attr("height", g.graph().height * initialScale + 40);
+      // svg.call(this.zoom.transform, transform(this.scale))
+
+      svg.attr("height", graph.graph().height * this.scale + 40);
     },
 
     addChild: function(id) {
       const newId = this.generateId(16);
       let edges = this.gdata.get(id);
-      edges.push(newId);
+      edges.edges.push(newId);
       this.gdata.set(id, edges);
-      this.gdata.set(newId, []);
-      // this.gdata[index]["Edge"].push(newId);
-      // for (const a of this.gdata) {
-      //   let currentId = a["nodeId"];
-      //   // g.setNode(id + "2", {label: " "});
-      //   if (id === currentId) {
-      //       a["Edge"].push(newId)
-      //   }
-      // }
-      // this.gdata.push({
-      //   nodeId: newId,
-      //   Edge: []
-      // });
-      // this.render();
+      this.gdata.set(newId, {
+        detail: "This a child of " + id,
+        edges: []
+      });
     },
     addParent: function(id) {
       const newId = this.generateId(16);
-      this.gdata.set(newId, [id]);
-      // this.gdata.push({
-      //   nodeId: newId,
-      //   Edge: [id]
-      // });
-      // this.render();
+      let value = {
+        detail: "This is a parent of " + id,
+        edges: [id]
+      };
+      this.gdata.set(newId, value);
     },
-
+    setScale: function(scale) {
+      this.scale = scale;
+    },
     generateId: length => {
       let s = "";
       do {
@@ -155,48 +169,60 @@ export default {
       return s;
     },
     highlightEdges: function(d) {
-      console.log(d)
-      let children = this.gdata.get(d);
+      let children = this.gdata.get(d).edges;
       if (children.length > 0) {
-        d3.select("svg").select("g").selectAll("g.node")
-          .filter(function (d) {
+        d3.select("svg")
+          .select("g")
+          .selectAll("g.node")
+          .filter(function(d) {
             return children.includes(d);
           })
           .select("rect.label-container")
           .style("fill", "steelblue");
       }
       let parents = [];
-      for (const [key, value] of this.gdata.entries()){
-        if (value.includes(d)) parents.push(key);
+      for (const [key, value] of this.gdata.entries()) {
+        if (value.edges.includes(d)) parents.push(key);
       }
       if (parents.length > 0) {
-        d3.select("svg").select("g").selectAll("g.node")
-          .filter(function (d) {
+        d3.select("svg")
+          .select("g")
+          .selectAll("g.node")
+          .filter(function(d) {
             return parents.includes(d);
           })
           .select("rect.label-container")
           .style("fill", "orange");
       }
-      // let node = this.gdata[i]["nodeId"];
-      // console.log("node passed in: " + d);
-      // console.log("node at index " + i + " " + node);
-      //
-      // let prevnode = this.gdata[i - 1];
-      // if (prevnode !== undefined)
-      //   console.log("node at index " + (i - 1) + " " + prevnode["nodeId"]);
-      //
-      // let nextnode = this.gdata[i + 1];
-      // if (nextnode !== undefined)
-      //   console.log("node at index " + (i + 1) + " " + nextnode["nodeId"]);
-    }
+    },
+    zoom:
+      d3.zoom().on("zoom", () => {
+      // console.log(d3.select(this).select("g"))
+        this.setScale(d3.event.transform.k);
+        inner.attr("transform", d3.event.transform);
+      })
+
   }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 body {
   font: 300 14px "Helvetica Neue", Helvetica;
+}
+.svg-container {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  vertical-align: top;
+  overflow: hidden;
+}
+.svg-content {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 .node {
   cursor: pointer;
@@ -211,10 +237,19 @@ body {
   fill: #fff;
   stroke-width: 1px;
 }
-
+#tooltip_template {
+  position: absolute;
+  background-color: white;
+  border: 2px solid;
+  border-radius: 5px;
+  padding: 5px;
+  z-index: 10;
+  visibility: hidden;
+}
 .edgePath path {
   stroke: #333;
   fill: #333;
   stroke-width: 1.5px;
 }
+
 </style>
