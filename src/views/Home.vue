@@ -1,5 +1,5 @@
 <template>
-  <Graph msg="Welcome to Your Vue.js App"></Graph>
+  <Graph></Graph>
 </template>
 
 <script>
